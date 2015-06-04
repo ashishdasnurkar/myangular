@@ -202,5 +202,24 @@ describe('test Scope', function() {
       scope.$digest();
       expect(scope.counter).toBe(2);
     });
+
+    it('should handle NaN watch value', function() {
+      // since NaN are not equal to itself, if a watch returns a NaN, it may stay dirty forever.
+      // to avoid infinite looping for NaN watch we should explpicitely check for NaN watcher
+      scope.number = 0/0;
+      scope.counter = 0;
+
+      scope.$watch(
+        function(scope) {return scope.number;},
+        function(newValue, oldValue, scope) {
+          scope.counter++;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.counter).toBe(1);
+      // scope.$digest();
+      // expect(scope.counter).toBe(1);
+    });
   });
 });
