@@ -221,5 +221,17 @@ describe('test Scope', function() {
       // scope.$digest();
       // expect(scope.counter).toBe(1);
     });
+
+
+    it('should $eval function and return result', function() {
+      scope.value = 42;
+
+      var result = scope.$eval(function(scope) {
+        return scope.value;
+      })
+
+      expect(result).toBe(42);
+    });
+
   });
 });
