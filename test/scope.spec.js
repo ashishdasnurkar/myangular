@@ -256,7 +256,29 @@ describe('test Scope', function() {
 
       expect(scope.counter).toBe(2);
 
-    })
+    });
+
+    it('should defer function passed to $evalAsync but in current $digest', function() {
+      scope.aValue = [1,2,3];
+      scope.evalAsyncEvaluated = false;
+      scope.evalAsyncEvaluatedImmediately = false;
+
+      scope.$watch(
+        function(scope) {return scope.aValue;},
+        function(newValue, oldValue, scope) {
+          scope.$evalAsync(function(scope) {
+            scope.evalAsyncEvaluated = true;
+          });
+
+          scope.evalAsyncEvaluatedImmediately = scope.evalAsyncEvaluated;
+        }
+      );
+
+      scope.$digest();
+      expect(scope.evalAsyncEvaluated).toBe(true);
+      expect(scope.evalAsyncEvaluatedImmediately).toBe(false);
+
+    });
 
   });
 });
