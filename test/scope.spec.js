@@ -280,5 +280,68 @@ describe('test Scope', function() {
 
     });
 
+    it('should $evalAsync function added by watch function', function() {
+      scope.aValue = [1,2,3];
+      scope.asyncEvaluated = false;
+
+      scope.$watch(
+        function(scope) {
+          if(!scope.asyncEvaluated) {
+            scope.$evalAsync(function() {
+              scope.asyncEvaluated = true;
+            });
+          }
+          return scope.aValue;
+        },
+        function(newValue, oldValue, scope) {}
+      );
+
+
+      scope.$digest();
+
+      expect(scope.asyncEvaluated).toBe(true);
+    });
+
+
+    it('executes $evalAsync function even when watch is not dirty', function() {
+      scope.aValue = [1,2,3];
+      scope.asyncEvaluatedTimes = 0;
+
+      scope.$watch(
+        function() {
+          if(scope.asyncEvaluatedTimes < 2) {
+            scope.$evalAsync(function() {
+              scope.asyncEvaluatedTimes++;
+            });
+          }
+          return scope.aValue;
+        },
+        function(newValue, oldValue, scope) {}
+      );
+
+      scope.$digest();
+
+      expect(scope.asyncEvaluatedTimes).toBe(2);
+    });
+
+
+    it('should terminate if the watch always has $evalAsync by watch function', function() {
+      scope.aValue = [1,2.3];
+
+      scope.$watch(
+        function(scope) {
+          scope.$evalAsync(function() {
+
+          });
+          return scope.aValue;
+        },
+        function(newValue, oldValue, scope) {
+
+        }
+      );
+
+      expect(function() { scope.$digest();}).toThrow();
+    })
+
   });
 });
