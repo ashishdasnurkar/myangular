@@ -341,7 +341,33 @@ describe('test Scope', function() {
       );
 
       expect(function() { scope.$digest();}).toThrow();
-    })
+    });
+
+    it('should validate $$phase field whose value is the current digest phase',
+      function() {
+        scope.aValue = [1,2,3];
+        scope.phaseInWatchFunction = undefined;
+        scope.phaseInListenerFunction = undefined;
+        scope.phaseInApplyFunction = undefined;
+
+        scope.$watch(
+          function(scope) {
+            scope.phaseInWatchFunction = scope.$$phase;
+            return scope.aValue;
+          },
+          function(newValue, oldValue, scope) {
+            scope.phaseInListenerFunction = scope.$$phase;
+          }
+        );
+
+        scope.$apply(function() {
+          scope.phaseInApplyFunction = scope.$$phase;
+        });
+
+        expect(scope.phaseInWatchFunction).toBe('$digest');
+        expect(scope.phaseInListenerFunction).toBe('$digest');
+        expect(scope.phaseInApplyFunction).toBe('$apply');
+      });
 
   });
 });
