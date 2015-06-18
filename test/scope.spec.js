@@ -391,5 +391,34 @@ describe('test Scope', function() {
           done();
         }, 50);
       });
+
+      it('should allow async $apply with $applyAsync', function(done) {
+        scope.counter = 0;
+        scope.aValue = 'abc';
+
+        scope.$watch(
+          function(scope) {return scope.aValue;},
+          function(newValue, oldValue, scope) {
+            scope.counter++;
+          }
+        );
+
+        scope.$digest();
+        expect(scope.counter).toBe(1);
+
+        scope.$applyAsync(function(scope) {
+          scope.aValue = "xyz";
+        });
+
+        // scope.counter shouldn't increment as applyAsync function
+        // is not called immediately
+        expect(scope.counter).toBe(1);
+
+        setTimeout(function() {
+          expect(scope.counter).toBe(2);
+          done();
+        }, 50);
+      });
+
   });
 });

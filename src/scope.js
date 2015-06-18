@@ -109,3 +109,5 @@ Scope.prototype.$evalAsync = function(expr) {
   self.$$asyncQueue.push({scope: self, expression: expr});
 
 };
+
+Scope.prototype.$applyAsync = function() {};
