@@ -2,6 +2,7 @@ function Scope() {
   this.$$watchers = [];
   this.$$lastDirtyWatch = null;
   this.$$asyncQueue = [];
+  this.$$applyAsyncQueue = [];
   this.$$phase = null;
 }
 
@@ -112,13 +113,15 @@ Scope.prototype.$evalAsync = function(expr) {
 
 Scope.prototype.$applyAsync = function(expr) {
   var self = this;
+  self.$$applyAsyncQueue.push(function() {
+    self.$eval(expr);
+  });
 
-  if(!self.$$phase && !self.$$asyncQueue.length) {
-    setTimeout(function() {
-      if(self.$$asyncQueue.length) {
-        self.$digest();
+  setTimeout(function() {
+    self.$apply(function(expr) {
+      while(self.$$applyAsyncQueue.length) {
+        self.$$applyAsyncQueue.shift() ();
       }
     }, 0);
-  }
-  self.$$asyncQueue.push({scope: self, expression: expr});
+  });
 };

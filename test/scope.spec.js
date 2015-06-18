@@ -420,5 +420,29 @@ describe('test Scope', function() {
         }, 50);
       });
 
+      it('never execute $applAsync\'ed function in the current digest cycle'
+        , function(done) {
+        scope.aValue = [1,2,3];
+        scope.asyncApplied = false;
+
+        scope.$watch(
+          function(scope) {return scope.aValue;},
+          function(newValue, oldValue, scope) {
+            scope.$applyAsync(function(scope) {
+              scope.asyncApplied = true;
+            });
+
+          }
+        );
+
+        scope.$digest();
+        expect(scope.asyncApplied).toBe(false);
+        setTimeout(function() {
+          expect(scope.asyncApplied).toBe(true);
+          done();
+        }, 50);
+
+      });
+
   });
 });
