@@ -110,4 +110,15 @@ Scope.prototype.$evalAsync = function(expr) {
 
 };
 
-Scope.prototype.$applyAsync = function() {};
+Scope.prototype.$applyAsync = function(expr) {
+  var self = this;
+
+  if(!self.$$phase && !self.$$asyncQueue.length) {
+    setTimeout(function() {
+      if(self.$$asyncQueue.length) {
+        self.$digest();
+      }
+    }, 0);
+  }
+  self.$$asyncQueue.push({scope: self, expression: expr});
+};
